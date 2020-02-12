@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_netflix"
+            android:title="Netlfix" />
+        <item
+            android:id="@+id/nav_hbo"
+            android:title="HBO" />
+        <item
+            android:id="@+id/nav_disney"
+            android:title="Disney" />
+    </group>
+
+    <item android:title="Personal Attributes">
+        <menu>
+            <item
+                android:id="@+id/nav_settings"
+                android:title="Settings" />
+            <item
+                android:id="@+id/nav_favorites"
+                android:title="Favorites" />
+        </menu>
+    </item>
+
+</menu>
