@@ -10,8 +10,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -19,13 +17,10 @@ import java.util.ArrayList;
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewHolder>{
     private ArrayList<Movie> mMovieList;
     private Context mContext;
-    RequestOptions option;
 
     public MoviesAdapter(Context context, ArrayList<Movie> movieList){
         mMovieList = movieList;
         mContext = context;
-
-        option = new RequestOptions().centerCrop().placeholder(R.drawable.ic_launcher_background).error(R.drawable.ic_launcher_background);
     }
 
     @NonNull
@@ -45,8 +40,11 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         String imageUrl = currentItem.getImgUrl();
 
         holder.movieTitleListItem.setText(title);
-        //Picasso.with(mContext).load(imageUrl).fit().centerInside().into(holder.movieImage);
-        Glide.with(mContext).load(imageUrl).apply(option).into(holder.movieImage);
+        Picasso.with(mContext)
+                .load(imageUrl)
+                .placeholder(R.mipmap.ic_launcher)
+                .error(R.drawable.ic_launcher_background)
+                .into(holder.movieImage);
     }
 
     @Override

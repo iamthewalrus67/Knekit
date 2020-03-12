@@ -28,11 +28,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 
-    //Volley implementation
-    implementation 'com.android.volley:volley:1.1.0'
     //Picasso implementation
     implementation 'com.squareup.picasso:picasso:2.5.2'
-    //Glide implementation
-    implementation 'com.github.bumptech.glide:glide:4.6.1'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
 }
