@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "217341897278",
+    "firebase_url": "https://knekit-b4cc2.firebaseio.com",
+    "project_id": "knekit-b4cc2",
+    "storage_bucket": "knekit-b4cc2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:217341897278:android:dd9e6f4ca80f70e1d03f6f",
+        "android_client_info": {
+          "package_name": "com.example.knekit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "217341897278-1c82oa5huc4jm2284m6f8nbq2pr3gn70.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.knekit",
+            "certificate_hash": "da8c8ed8177603add8217bf6c0b1f056fbfa3241"
+          }
+        },
+        {
+          "client_id": "217341897278-h8spu5k5182hmlnpjih10blinc7on2kb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.knekit",
+            "certificate_hash": "7ae8bde95763b56e4f930c5e582c10bc4aa95a3b"
+          }
+        },
+        {
+          "client_id": "217341897278-8fvqfvo4km3rnle6rne49bt98nidp3dc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBAd0JlCbg8JuOivf9d27wYHQ1n_QPuunI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "217341897278-8fvqfvo4km3rnle6rne49bt98nidp3dc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

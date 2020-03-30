@@ -1,4 +1,4 @@
-package com.example.seriesapp;
+package com.example.knekit;
 
 public class Movie {
     private String mTitle;

@@ -1,4 +1,4 @@
-package com.example.seriesapp;
+package com.example.knekit;
 
 import android.content.Context;
 
