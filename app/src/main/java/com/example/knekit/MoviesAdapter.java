@@ -13,14 +13,25 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewHolder>{
-    private ArrayList<Movie> mMovieList;
+    private ArrayList<Map<String, Object>> mMovieList;
     private Context mContext;
+    private OnBottomReachedListener onBottomReachedListener;
 
-    public MoviesAdapter(Context context, ArrayList<Movie> movieList){
+    public MoviesAdapter(Context context, ArrayList<Map<String, Object>> movieList){
         mMovieList = movieList;
         mContext = context;
+    }
+
+    public void setOnBottomReachedListener(OnBottomReachedListener onBottomReachedListener) {
+        this.onBottomReachedListener = onBottomReachedListener;
+    }
+
+    public interface OnBottomReachedListener {
+        void onBottomReached(int position);
+
     }
 
     @NonNull
@@ -34,10 +45,14 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
-        Movie currentItem = mMovieList.get(position);
+        if (position == mMovieList.size() - 1){
+            onBottomReachedListener.onBottomReached(position);
+        }
 
-        String title = currentItem.getTitle();
-        String imageUrl = currentItem.getImgUrl();
+        Map<String, Object> currentItem = mMovieList.get(position);
+
+        String title = (String) currentItem.get("name");
+        String imageUrl = (String) currentItem.get("poster_path");
 
         holder.movieTitleListItem.setText(title);
         Picasso.with(mContext)
