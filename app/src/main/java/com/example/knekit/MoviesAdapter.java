@@ -42,8 +42,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         holder.movieTitleListItem.setText(title);
         Picasso.with(mContext)
                 .load(imageUrl)
-                .placeholder(R.mipmap.ic_launcher)
-                .error(R.drawable.ic_launcher_background)
+                .placeholder(R.drawable.ic_launcher_background)
+                .error(R.mipmap.ic_launcher)
                 .into(holder.movieImage);
     }
 
@@ -55,13 +55,11 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     class MovieViewHolder extends RecyclerView.ViewHolder{
 
         TextView movieTitleListItem;
-        TextView viewHolderIndex;
         ImageView movieImage;
 
         public MovieViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            viewHolderIndex = itemView.findViewById(R.id.tv_movie_index);
             movieTitleListItem = itemView.findViewById(R.id.tv_movie_title);
             movieImage = itemView.findViewById(R.id.img_movie_image);
         }

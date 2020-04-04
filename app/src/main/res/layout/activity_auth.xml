@@ -13,7 +13,8 @@
         android:layout_height="40dp"
         android:padding="10dp"
         android:background="@drawable/edit_text"
-        android:id="@+id/edit_text_email"
+        android:id="@+id/edit_text_sign_in_email"
+        android:inputType="textEmailAddress"
         android:hint="Email..."
         android:layout_margin="10dp"/>
     <EditText
@@ -21,9 +22,15 @@
         android:layout_height="40dp"
         android:padding="10dp"
         android:background="@drawable/edit_text"
-        android:id="@+id/edit_text_password"
+        android:inputType="textPassword"
+        android:id="@+id/edit_text_sign_in_password"
         android:hint="Password..."
         android:layout_margin="10dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_wrong_sign_in"
+        android:textColor="@color/colorAccent" />
     <Button
         android:layout_width="match_parent"
         android:layout_height="40dp"
@@ -43,5 +50,6 @@
         android:layout_height="wrap_content"
         android:textColor="@color/colorAccent"
         android:textSize="20dp"
+        android:id="@+id/tv_sign_up"
         android:text="SIGN UP"/>
 </LinearLayout>

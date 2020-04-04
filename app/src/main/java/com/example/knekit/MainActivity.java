@@ -8,8 +8,12 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,11 +34,16 @@ public class MainActivity extends AppCompatActivity {
     private MoviesAdapter moviesAdapter;
     private ArrayList<Movie> movieList;
     private String JSONUrl;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseUser firebaseUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
 
         recyclerView = findViewById(R.id.rv_movie_list);
         recyclerView.setHasFixedSize(true);
@@ -53,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         toggle.syncState();
 
 
-        JSONUrl = "https://api.themoviedb.org/3/trending/tv/week?api_key=45b65d61b990414499da78ba05f16d4e";
+        JSONUrl = "https://api.themoviedb.org/3/tv/top_rated?api_key=45b65d61b990414499da78ba05f16d4e&language=en-US&page=1";
         JSONParser jsonParser = new JSONParser();
         jsonParser.execute(JSONUrl);
     }
