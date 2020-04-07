@@ -19,6 +19,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     private ArrayList<Map<String, Object>> mMovieList;
     private Context mContext;
     private OnBottomReachedListener onBottomReachedListener;
+    private OnItemClickListener onItemClickListener;
 
     public MoviesAdapter(Context context, ArrayList<Map<String, Object>> movieList){
         mMovieList = movieList;
@@ -29,9 +30,16 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         this.onBottomReachedListener = onBottomReachedListener;
     }
 
+    public void setOnItemClickListener(OnItemClickListener itemClickListener){
+        onItemClickListener = itemClickListener;
+    }
+
+    public interface OnItemClickListener{
+        void onItemClick(int position);
+    }
+
     public interface OnBottomReachedListener {
         void onBottomReached(int position);
-
     }
 
     @NonNull
@@ -54,12 +62,14 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         String title = (String) currentItem.get("name");
         String imageUrl = (String) currentItem.get("poster_path");
 
-        holder.movieTitleListItem.setText(title);
+        holder.movieTitleTexView.setText(title);
         Picasso.with(mContext)
                 .load(imageUrl)
                 .placeholder(R.drawable.ic_launcher_background)
                 .error(R.mipmap.ic_launcher)
                 .into(holder.movieImage);
+
+
     }
 
     @Override
@@ -69,14 +79,26 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
     class MovieViewHolder extends RecyclerView.ViewHolder{
 
-        TextView movieTitleListItem;
+        TextView movieTitleTexView;
         ImageView movieImage;
 
         public MovieViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            movieTitleListItem = itemView.findViewById(R.id.tv_movie_title);
+            movieTitleTexView = itemView.findViewById(R.id.tv_movie_title);
             movieImage = itemView.findViewById(R.id.img_movie_image);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(onItemClickListener!=null){
+                        int position = getAdapterPosition();
+                        if(position != RecyclerView.NO_POSITION){
+                            onItemClickListener.onItemClick(position);
+                        }
+                    }
+                }
+            });
         }
     }
 }

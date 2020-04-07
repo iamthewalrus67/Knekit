@@ -15,8 +15,8 @@ public class ActivityManager extends Application {
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        if(firebaseUser != null){
-            Intent intent = new Intent(this, MainActivity.class);
+        if(firebaseUser == null){
+            Intent intent = new Intent(this, AuthActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         }

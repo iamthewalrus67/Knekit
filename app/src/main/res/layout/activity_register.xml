@@ -12,13 +12,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:padding="10dp"
-        android:hint="Create a username..."
-        android:background="@drawable/edit_text"/>
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:padding="10dp"
         android:id="@+id/edit_text_register_email"
         android:hint="Enter your email..."
         android:inputType="textEmailAddress"

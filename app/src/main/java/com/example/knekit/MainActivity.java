@@ -9,35 +9,25 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private RecyclerView recyclerView;
-    private MoviesAdapter moviesAdapter;
+    private MoviesAdapter movieAdapter;
     private ArrayList<Map<String, Object>> movieList;
-    private String JSONUrl;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
+    private Button logOutButton;
     private int page;
+    //private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +37,9 @@ public class MainActivity extends AppCompatActivity {
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
+        //db = FirebaseFirestore.getInstance();
 
+        logOutButton = findViewById(R.id.button_log_out);
         recyclerView = findViewById(R.id.rv_movie_list);
         recyclerView.setHasFixedSize(true);
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -65,12 +57,30 @@ public class MainActivity extends AppCompatActivity {
         toggle.syncState();
 
         movieList = JSONHelper.getPopularTVShows(page);
-        MoviesAdapter adapter = new MoviesAdapter(this, movieList);
-        recyclerView.setAdapter(adapter);
-        adapter.setOnBottomReachedListener(new MoviesAdapter.OnBottomReachedListener() {
+        movieAdapter = new MoviesAdapter(this, movieList);
+        recyclerView.setAdapter(movieAdapter);
+        movieAdapter.setOnBottomReachedListener(new MoviesAdapter.OnBottomReachedListener() {
             @Override
             public void onBottomReached(int position) {
                 movieList.addAll(JSONHelper.getPopularTVShows(++page));
+            }
+        });
+
+        movieAdapter.setOnItemClickListener(new MoviesAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                //db.collection("movies").document("movie").set(movieList.get(position));
+            }
+        });
+
+        //Кнопка выхода из аккаунта
+        logOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                firebaseAuth.signOut();
+                Intent intent = new Intent(MainActivity.this, AuthActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
             }
         });
     }
