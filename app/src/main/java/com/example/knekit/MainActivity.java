@@ -11,10 +11,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -24,21 +30,24 @@ public class MainActivity extends AppCompatActivity {
     private MoviesAdapter movieAdapter;
     private ArrayList<Map<String, Object>> movieList;
     private FirebaseAuth firebaseAuth;
-    private FirebaseUser firebaseUser;
     private Button logOutButton;
+    private Spinner filterSpinner;
+    private TextView testTextView;
+    private ArrayAdapter<String> spinnerAdapter;
+    private String option;
     private int page;
-    //private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         page = 1;
+        option = "popular";
 
         firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
-        //db = FirebaseFirestore.getInstance();
 
+        testTextView = findViewById(R.id.tv_test);
+        filterSpinner = findViewById(R.id.spinner_main_filter);
         logOutButton = findViewById(R.id.button_log_out);
         recyclerView = findViewById(R.id.rv_movie_list);
         recyclerView.setHasFixedSize(true);
@@ -50,26 +59,53 @@ public class MainActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        movieList = new ArrayList<>();
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        movieList = JSONHelper.getPopularTVShows(page);
-        movieAdapter = new MoviesAdapter(this, movieList);
+        spinnerAdapter = new ArrayAdapter<String>(this, R.layout.custom_spinner_item, getResources().getStringArray(R.array.string_array_main_filter));
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
+        filterSpinner.setAdapter(spinnerAdapter);
+        filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch(position){
+                    case 0:
+                        option = "popular";
+                        testTextView.append(option);
+                        break;
+                    case 1:
+                        option = "top_rated";
+                        testTextView.append(option);
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        movieList = JSONHelper.getTVShows(page, option);
+        movieAdapter = new MoviesAdapter(MainActivity.this, movieList);
         recyclerView.setAdapter(movieAdapter);
+
+
         movieAdapter.setOnBottomReachedListener(new MoviesAdapter.OnBottomReachedListener() {
             @Override
             public void onBottomReached(int position) {
-                movieList.addAll(JSONHelper.getPopularTVShows(++page));
+                movieList.addAll(JSONHelper.getTVShows(++page, option));
             }
         });
 
         movieAdapter.setOnItemClickListener(new MoviesAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                //db.collection("movies").document("movie").set(movieList.get(position));
+                Intent intent = new Intent(MainActivity.this, DetailedActivity.class);
+                intent.putExtra("id", (Integer) movieList.get(position).get("id"));
+                startActivity(intent);
             }
         });
 
@@ -83,6 +119,9 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    private void loadTVShows(String option){
     }
 
 

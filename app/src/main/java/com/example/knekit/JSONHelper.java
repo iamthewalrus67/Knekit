@@ -27,10 +27,13 @@ public class JSONHelper {
     private static final String NAME = "name";
     private static final String POSTER_PATH = "poster_path";
     private static final String OVERVIEW = "overview";
+    private static final String POPULAR = "popular";
+    private static final String TOP_RATED = "top_rated";
 
-    public static ArrayList<Map<String, Object>> getPopularTVShows(int page){
+    public static ArrayList<Map<String, Object>> getTVShows(int page, String option){
         ArrayList<Map<String, Object>> tvShowList = new ArrayList<>();
-        String url = "https://api.themoviedb.org/3/tv/popular?api_key=45b65d61b990414499da78ba05f16d4e&language=en-US&page="+page;
+        //String url = "https://api.themoviedb.org/3/tv/popular?api_key=45b65d61b990414499da78ba05f16d4e&language=en-US&page="+page;
+        String url = String.format("https://api.themoviedb.org/3/%s/%s?api_key=45b65d61b990414499da78ba05f16d4e&language=en-US&page=%d", TYPE_TV, option, page);
         try {
             JSONObject jsonObject = new JSONObject(getJSON(url));
             JSONArray jsonArray = jsonObject.getJSONArray(KEY_RESULTS);
@@ -39,7 +42,8 @@ public class JSONHelper {
                 Map<String, Object> tvShow = new HashMap<>();
                 tvShow.put(NAME, tvShowJSONObject.getString(NAME));
                 tvShow.put(POSTER_PATH, BASE_IMG_URL+tvShowJSONObject.getString(POSTER_PATH));
-                tvShow.put(OVERVIEW, tvShowJSONObject.getString(OVERVIEW));
+                tvShow.put("id", tvShowJSONObject.getInt("id"));
+                tvShow.put("type", TYPE_TV);
                 tvShowList.add(tvShow);
             }
         } catch (JSONException e) {
@@ -47,6 +51,23 @@ public class JSONHelper {
         }
 
         return tvShowList;
+    }
+
+    public static Map<String, Object> getTVShowWithId(int id){
+        String url = String.format("https://api.themoviedb.org/3/tv/%d?api_key=45b65d61b990414499da78ba05f16d4e&language=en-US", id);
+        Map<String, Object> tvShow = new HashMap<>();
+        try {
+            JSONObject jsonObject = new JSONObject(getJSON(url));
+            tvShow.put(POSTER_PATH, BASE_IMG_URL+jsonObject.getString(POSTER_PATH));
+            tvShow.put(NAME, jsonObject.getString(NAME));
+            tvShow.put(OVERVIEW, jsonObject.getString(OVERVIEW));
+            tvShow.put("number_of_seasons", jsonObject.getInt("number_of_seasons"));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return tvShow;
     }
 
     private static String getJSON(String url){
