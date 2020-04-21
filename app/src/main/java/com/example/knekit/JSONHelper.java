@@ -20,15 +20,23 @@ import java.util.concurrent.ExecutionException;
 
 public class JSONHelper {
     private static final String BASE_URL = "https://api.themoviedb.org/3/";
-    private static final String BASE_IMG_URL = "https://image.tmdb.org/t/p/w500";
+    private static final String BASE_IMG_URL = "https://image.tmdb.org/t/p/";
     private static final String TYPE_TV = "tv";
     private static final String TYPE_MOVIE = "movie";
     private static final String KEY_RESULTS = "results";
     private static final String NAME = "name";
     private static final String POSTER_PATH = "poster_path";
+    private static final String STILL_PATH = "still_path";
     private static final String OVERVIEW = "overview";
     private static final String POPULAR = "popular";
     private static final String TOP_RATED = "top_rated";
+    private static final String STILL_WIDTH_92 = "w92";
+    private static final String STILL_WIDTH_185 = "w185";
+    private static final String STILL_WIDTH_300 = "w300";
+    private static final String POSTER_WIDTH_185 = "w185";
+    private static final String POSTER_WIDTH_500 = "w500";
+    private static final String ORIGINAL = "original";
+
 
     public static ArrayList<Map<String, Object>> getTVShows(int page, String option){
         ArrayList<Map<String, Object>> tvShowList = new ArrayList<>();
@@ -41,7 +49,7 @@ public class JSONHelper {
                 JSONObject tvShowJSONObject = jsonArray.getJSONObject(i);
                 Map<String, Object> tvShow = new HashMap<>();
                 tvShow.put(NAME, tvShowJSONObject.getString(NAME));
-                tvShow.put(POSTER_PATH, BASE_IMG_URL+tvShowJSONObject.getString(POSTER_PATH));
+                tvShow.put(POSTER_PATH, BASE_IMG_URL+POSTER_WIDTH_500+tvShowJSONObject.getString(POSTER_PATH));
                 tvShow.put("id", tvShowJSONObject.getInt("id"));
                 tvShow.put("type", TYPE_TV);
                 tvShowList.add(tvShow);
@@ -58,7 +66,7 @@ public class JSONHelper {
         Map<String, Object> tvShow = new HashMap<>();
         try {
             JSONObject jsonObject = new JSONObject(getJSON(url));
-            tvShow.put(POSTER_PATH, BASE_IMG_URL+jsonObject.getString(POSTER_PATH));
+            tvShow.put(POSTER_PATH, BASE_IMG_URL+POSTER_WIDTH_500+jsonObject.getString(POSTER_PATH));
             tvShow.put(NAME, jsonObject.getString(NAME));
             tvShow.put(OVERVIEW, jsonObject.getString(OVERVIEW));
             tvShow.put("number_of_seasons", jsonObject.getInt("number_of_seasons"));
@@ -68,6 +76,32 @@ public class JSONHelper {
         }
 
         return tvShow;
+    }
+
+    public static ArrayList<Map<String, Object>> getTVEpisodes(int id, int seasonNumber){
+        ArrayList<Map<String, Object>> episodesArray = new ArrayList<>();
+        try {
+            JSONObject jsonObject = new JSONObject(getTVSeasonDetails(id, seasonNumber));
+            JSONArray jsonArray = jsonObject.getJSONArray("episodes");
+            for (int i=0; i<jsonArray.length(); i++){
+                JSONObject episodeJSON = jsonArray.getJSONObject(i);
+                Map<String, Object> episode = new HashMap<>();
+                episode.put(NAME, episodeJSON.getString(NAME));
+                episode.put(OVERVIEW, episodeJSON.getString(OVERVIEW));
+                episode.put(STILL_PATH, BASE_IMG_URL+ORIGINAL+episodeJSON.getString(STILL_PATH));
+                episodesArray.add(episode);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return episodesArray;
+    }
+
+    private static String getTVSeasonDetails(int id, int seasonNumber){
+        String url = String.format("https://api.themoviedb.org/3/tv/%d/season/%d?api_key=45b65d61b990414499da78ba05f16d4e&language=en-US", id, seasonNumber);
+
+        return getJSON(url);
     }
 
     private static String getJSON(String url){

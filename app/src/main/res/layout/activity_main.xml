@@ -39,7 +39,7 @@
             android:id="@+id/rv_movie_list"/>
     </LinearLayout>
     <com.google.android.material.navigation.NavigationView
-        android:layout_width="120dp"
+        android:layout_width="100dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:id="@+id/nav_view"

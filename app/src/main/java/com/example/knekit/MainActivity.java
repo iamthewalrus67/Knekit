@@ -64,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
+        movieList = JSONHelper.getTVShows(page, option);
+        movieAdapter = new MoviesAdapter(MainActivity.this, movieList);
+        recyclerView.setAdapter(movieAdapter);
+
         spinnerAdapter = new ArrayAdapter<String>(this, R.layout.custom_spinner_item, getResources().getStringArray(R.array.string_array_main_filter));
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
         filterSpinner.setAdapter(spinnerAdapter);
@@ -72,10 +76,12 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 switch(position){
                     case 0:
+                        page = 1;
                         option = "popular";
                         testTextView.append(option);
                         break;
                     case 1:
+                        page = 1;
                         option = "top_rated";
                         testTextView.append(option);
                         break;
@@ -87,10 +93,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-        movieList = JSONHelper.getTVShows(page, option);
-        movieAdapter = new MoviesAdapter(MainActivity.this, movieList);
-        recyclerView.setAdapter(movieAdapter);
 
 
         movieAdapter.setOnBottomReachedListener(new MoviesAdapter.OnBottomReachedListener() {
