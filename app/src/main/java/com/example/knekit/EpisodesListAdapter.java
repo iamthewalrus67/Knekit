@@ -40,6 +40,8 @@ public class EpisodesListAdapter extends ArrayAdapter<Map<String, Object>> {
         description.setText((String)episode.get("overview"));
         Picasso.with(context)
                 .load((String)episode.get("still_path"))
+                .resize(860, 645)
+                .centerCrop()
                 .placeholder(R.drawable.ic_launcher_background)
                 .error(R.mipmap.ic_launcher)
                 .into(preview);

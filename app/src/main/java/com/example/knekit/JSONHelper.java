@@ -1,6 +1,7 @@
 package com.example.knekit;
 
 import android.os.AsyncTask;
+import android.widget.ArrayAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,6 +70,7 @@ public class JSONHelper {
             tvShow.put(POSTER_PATH, BASE_IMG_URL+POSTER_WIDTH_500+jsonObject.getString(POSTER_PATH));
             tvShow.put(NAME, jsonObject.getString(NAME));
             tvShow.put(OVERVIEW, jsonObject.getString(OVERVIEW));
+            tvShow.put("id", id);
             tvShow.put("number_of_seasons", jsonObject.getInt("number_of_seasons"));
 
         } catch (JSONException e) {
@@ -96,6 +98,30 @@ public class JSONHelper {
         }
 
         return episodesArray;
+    }
+
+    public static ArrayList<Map<String, Object>> getTVShowsBySearch(String query, int page){
+        String url = String.format("https://api.themoviedb.org/3/search/tv?api_key=45b65d61b990414499da78ba05f16d4e&language=en-US&page=%d&query=%s&include_adult=false", page, query);
+        ArrayList<Map<String, Object>> tvShows = new ArrayList<>();
+
+        try {
+            JSONObject jsonObject = new JSONObject(getJSON(url));
+            JSONArray jsonArray = jsonObject.getJSONArray(KEY_RESULTS);
+
+            for (int i=0; i<jsonArray.length(); i++){
+                JSONObject tvShowJSONObject = jsonArray.getJSONObject(i);
+                Map<String, Object> tvShow = new HashMap<>();
+
+                tvShow.put(NAME, tvShowJSONObject.getString(NAME));
+                tvShow.put(POSTER_PATH, BASE_IMG_URL+POSTER_WIDTH_500+tvShowJSONObject.getString(POSTER_PATH));
+                tvShow.put("id", tvShowJSONObject.getInt("id"));
+                tvShows.add(tvShow);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return tvShows;
     }
 
     private static String getTVSeasonDetails(int id, int seasonNumber){

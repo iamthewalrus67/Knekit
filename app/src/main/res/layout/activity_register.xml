@@ -31,7 +31,7 @@
         android:layout_margin="10dp"
         android:textColor="@color/white"
         android:text="Create an account"
-        android:background="@drawable/button"
+        android:background="@drawable/button_ripple"
         android:id="@+id/button_create_account"/>
 
 </LinearLayout>

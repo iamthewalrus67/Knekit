@@ -1,7 +1,11 @@
 package com.example.knekit;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -50,11 +54,25 @@ public class DetailedActivity extends AppCompatActivity {
     private int id;
     private int numberOfSeasons;
     private Integer[] seasons;
+    private DrawerLayout drawerLayout;
+    private Button logOutButton;
+    private Button favoritesMenuButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detailed);
+
+        //Выпадающее меню
+        drawerLayout = findViewById(R.id.drawer_layout);
+        drawerLayout.setScrimColor(getResources().getColor(R.color.transparent)); //Цвет затемнения фона
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+        logOutButton = findViewById(R.id.button_log_out);
+        favoritesMenuButton = findViewById(R.id.menu_button_favorites);
 
         episodesListView = findViewById(R.id.list_view_episodes);
         moviePosterImageView = findViewById(R.id.img_detail_movie_poster);
@@ -67,7 +85,6 @@ public class DetailedActivity extends AppCompatActivity {
         seasonInfoLinearLayout = findViewById(R.id.linear_layout_season_info);
         showSeasonInfoTextView = findViewById(R.id.button_show_season_info);
         id = getIntent().getIntExtra("id", 1);
-        //episodes = JSONHelper.getTVEpisodes(id, 1);
         movie = JSONHelper.getTVShowWithId(id);
         db = FirebaseFirestore.getInstance();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -97,7 +114,7 @@ public class DetailedActivity extends AppCompatActivity {
         chooseSeasonNumberSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                //episodes = JSONHelper.getTVEpisodes((int) id, seasons[position]);
+                loadEpisodes();
             }
 
             @Override
@@ -106,11 +123,6 @@ public class DetailedActivity extends AppCompatActivity {
             }
         });
 
-        episodes = JSONHelper.getTVEpisodes(id, (Integer) chooseSeasonNumberSpinner.getSelectedItem());
-
-        //Список эпизодов
-        episodesListViewAdapter = new EpisodesListAdapter(this, R.layout.episode_list_item, episodes);
-        episodesListView.setAdapter(episodesListViewAdapter);
 
         //Кнопка добавления в избранные
         addToFavoritesButton.setOnClickListener(new View.OnClickListener() {
@@ -183,5 +195,46 @@ public class DetailedActivity extends AppCompatActivity {
                 }
             }
         });
+
+        setMenuListeners();
+    }
+
+    private void loadEpisodes(){
+        episodes = JSONHelper.getTVEpisodes(id, (Integer) chooseSeasonNumberSpinner.getSelectedItem());
+        episodesListViewAdapter = new EpisodesListAdapter(this, R.layout.episode_list_item, episodes);
+        episodesListView.setAdapter(episodesListViewAdapter);
+
+    }
+
+    //Слушатели кнопок выпадающего меню
+    private void setMenuListeners(){
+        //Кнопка выхода из аккаунта
+        logOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(DetailedActivity.this, AuthActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }
+        });
+
+        favoritesMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DetailedActivity.this, FavoritesActivity.class);
+                drawerLayout.closeDrawer(GravityCompat.START);
+                startActivity(intent);
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(drawerLayout.isDrawerOpen(GravityCompat.START)){
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }else {
+            super.onBackPressed();
+        }
     }
 }

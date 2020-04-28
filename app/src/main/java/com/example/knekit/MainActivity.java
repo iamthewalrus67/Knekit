@@ -10,17 +10,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.SearchView;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -29,24 +29,28 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private MoviesAdapter movieAdapter;
     private ArrayList<Map<String, Object>> movieList;
+    private ArrayList<Map<String, Object>> searchResults;
     private FirebaseAuth firebaseAuth;
     private Button logOutButton;
     private Spinner filterSpinner;
-    private TextView testTextView;
+    private Button favoritesMenuButton;
     private ArrayAdapter<String> spinnerAdapter;
     private String option;
     private int page;
+    private int searchPage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        searchPage = 1;
         page = 1;
         option = "popular";
 
         firebaseAuth = FirebaseAuth.getInstance();
 
-        testTextView = findViewById(R.id.tv_test);
+
+        favoritesMenuButton = findViewById(R.id.menu_button_favorites);
         filterSpinner = findViewById(R.id.spinner_main_filter);
         logOutButton = findViewById(R.id.button_log_out);
         recyclerView = findViewById(R.id.rv_movie_list);
@@ -64,9 +68,6 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        movieList = JSONHelper.getTVShows(page, option);
-        movieAdapter = new MoviesAdapter(MainActivity.this, movieList);
-        recyclerView.setAdapter(movieAdapter);
 
         spinnerAdapter = new ArrayAdapter<String>(this, R.layout.custom_spinner_item, getResources().getStringArray(R.array.string_array_main_filter));
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
@@ -78,12 +79,12 @@ public class MainActivity extends AppCompatActivity {
                     case 0:
                         page = 1;
                         option = "popular";
-                        testTextView.append(option);
+                        loadTVShows();
                         break;
                     case 1:
                         page = 1;
                         option = "top_rated";
-                        testTextView.append(option);
+                        loadTVShows();
                         break;
                 }
             }
@@ -94,6 +95,38 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
+        setMenuListeners();
+    }
+
+    //Слушатели кнопок выпадающего меню
+    private void setMenuListeners(){
+        //Кнопка выхода из аккаунта
+        logOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                firebaseAuth.signOut();
+                Intent intent = new Intent(MainActivity.this, AuthActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }
+        });
+
+        favoritesMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, FavoritesActivity.class);
+                drawerLayout.closeDrawer(GravityCompat.START);
+                startActivity(intent);
+            }
+        });
+    }
+
+    private void loadTVShows(){
+        movieList = JSONHelper.getTVShows(page, option);
+        movieAdapter = new MoviesAdapter(MainActivity.this, movieList);
+        recyclerView.setAdapter(movieAdapter);
 
         movieAdapter.setOnBottomReachedListener(new MoviesAdapter.OnBottomReachedListener() {
             @Override
@@ -110,20 +143,78 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
 
-        //Кнопка выхода из аккаунта
-        logOutButton.setOnClickListener(new View.OnClickListener() {
+    private void loadTVShowsWithSearch(final String query){
+        searchResults = JSONHelper.getTVShowsBySearch(query, searchPage);
+        MoviesAdapter searchAdapter = new MoviesAdapter(MainActivity.this, searchResults);
+        recyclerView.setAdapter(searchAdapter);
+
+        searchAdapter.setOnBottomReachedListener(new MoviesAdapter.OnBottomReachedListener() {
             @Override
-            public void onClick(View v) {
-                firebaseAuth.signOut();
-                Intent intent = new Intent(MainActivity.this, AuthActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            public void onBottomReached(int position) {
+                searchResults.addAll(JSONHelper.getTVShowsBySearch(query, ++searchPage));
+            }
+        });
+
+        searchAdapter.setOnItemClickListener(new MoviesAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                Intent intent = new Intent(MainActivity.this, DetailedActivity.class);
+                intent.putExtra("id", (Integer) searchResults.get(position).get("id"));
                 startActivity(intent);
             }
         });
     }
 
-    private void loadTVShows(String option){
+    //Поиск
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.search_menu, menu);
+        MenuItem search = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) search.getActionView();
+        searchView.setQueryHint("Search...");
+
+        search.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                page = 1;
+                loadTVShows();
+
+                return true;
+            }
+        });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchPage = 1;
+                loadTVShowsWithSearch(query);
+
+                if(query.isEmpty()){
+                    recyclerView.setAdapter(movieAdapter);
+                }
+
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                searchPage = 1;
+                loadTVShowsWithSearch(newText);
+
+
+                return false;
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
     }
 
 
