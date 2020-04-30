@@ -65,8 +65,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         holder.movieTitleTexView.setText(title);
         Picasso.with(mContext)
                 .load(imageUrl)
-                .placeholder(R.drawable.ic_launcher_background)
-                .error(R.mipmap.ic_launcher)
                 .into(holder.movieImage);
 
 

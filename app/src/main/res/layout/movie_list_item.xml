@@ -15,8 +15,7 @@
             android:scaleType="fitXY"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/ic_launcher"
-            android:background="@android:color/transparent"
+            android:background="@drawable/placeholder"
             />
         <LinearLayout
             android:layout_width="wrap_content"

@@ -42,8 +42,8 @@ public class EpisodesListAdapter extends ArrayAdapter<Map<String, Object>> {
                 .load((String)episode.get("still_path"))
                 .resize(860, 645)
                 .centerCrop()
-                .placeholder(R.drawable.ic_launcher_background)
-                .error(R.mipmap.ic_launcher)
+                .placeholder(R.drawable.episode_placeholder)
+                .error(R.drawable.episode_placeholder)
                 .into(preview);
 
         return convertView;

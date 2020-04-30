@@ -34,6 +34,7 @@ public class FavoritesActivity extends AppCompatActivity {
     private ArrayList<Map<String, Object>> movieList;
     private Button logOutButton;
     private Button favoritesMenuButton;
+    private Button mainPageMenuButton;
     private DrawerLayout drawerLayout;
     private RecyclerView recyclerView;
     private FirebaseUser firebaseUser;
@@ -60,13 +61,19 @@ public class FavoritesActivity extends AppCompatActivity {
         toggle.syncState();
         logOutButton = findViewById(R.id.button_log_out);
         favoritesMenuButton = findViewById(R.id.menu_button_favorites);
+        mainPageMenuButton = findViewById(R.id.menu_button_main);
 
         recyclerView = findViewById(R.id.rv_movie_list);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        loadFavoritesFromFirestore();
         setMenuListeners();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadFavoritesFromFirestore();
     }
 
     /*@Override
@@ -84,6 +91,7 @@ public class FavoritesActivity extends AppCompatActivity {
     }*/
 
     private void loadFavoritesFromFirestore(){
+        movieList.clear();
         favoritesReference.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -103,7 +111,7 @@ public class FavoritesActivity extends AppCompatActivity {
             @Override
             public void onItemClick(int position) {
                 Intent intent = new Intent(FavoritesActivity.this, DetailedActivity.class);
-                intent.putExtra("id", (Integer)movieList.get(position).get("id"));
+                intent.putExtra("id", ((Long) movieList.get(position).get("id")).intValue());
                 startActivity(intent);
             }
         });
@@ -133,6 +141,15 @@ public class FavoritesActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 drawerLayout.closeDrawer(GravityCompat.START);
+            }
+        });
+
+        mainPageMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                Intent intent = new Intent(FavoritesActivity.this, MainActivity.class);
+                startActivity(intent);
             }
         });
     }

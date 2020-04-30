@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private Button logOutButton;
     private Spinner filterSpinner;
     private Button favoritesMenuButton;
+    private Button mainPageMenuButton;
     private ArrayAdapter<String> spinnerAdapter;
     private String option;
     private int page;
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
         firebaseAuth = FirebaseAuth.getInstance();
 
-
+        mainPageMenuButton = findViewById(R.id.menu_button_main);
         favoritesMenuButton = findViewById(R.id.menu_button_favorites);
         filterSpinner = findViewById(R.id.spinner_main_filter);
         logOutButton = findViewById(R.id.button_log_out);
@@ -119,6 +120,13 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, FavoritesActivity.class);
                 drawerLayout.closeDrawer(GravityCompat.START);
                 startActivity(intent);
+            }
+        });
+
+        mainPageMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.closeDrawer(GravityCompat.START);
             }
         });
     }

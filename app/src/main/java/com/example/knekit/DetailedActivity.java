@@ -22,17 +22,26 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.Nullable;
 
 public class DetailedActivity extends AppCompatActivity {
     private Map<String, Object> movie;
@@ -48,6 +57,8 @@ public class DetailedActivity extends AppCompatActivity {
     private LinearLayout seasonInfoLinearLayout;
     private FirebaseUser firebaseUser;
     private FirebaseFirestore db;
+    private CollectionReference favoritesReference;
+    private CollectionReference watchlistReference;
     private ArrayAdapter<Integer> seasonSpinnerAdapter;
     private EpisodesListAdapter episodesListViewAdapter;
     private ArrayList<Map<String, Object>> episodes;
@@ -57,6 +68,7 @@ public class DetailedActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private Button logOutButton;
     private Button favoritesMenuButton;
+    private Button mainPageMenuButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,9 +83,10 @@ public class DetailedActivity extends AppCompatActivity {
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
+
         logOutButton = findViewById(R.id.button_log_out);
         favoritesMenuButton = findViewById(R.id.menu_button_favorites);
-
+        mainPageMenuButton = findViewById(R.id.menu_button_main);
         episodesListView = findViewById(R.id.list_view_episodes);
         moviePosterImageView = findViewById(R.id.img_detail_movie_poster);
         movieTitleTextView = findViewById(R.id.tv_detail_movie_title);
@@ -88,6 +101,9 @@ public class DetailedActivity extends AppCompatActivity {
         movie = JSONHelper.getTVShowWithId(id);
         db = FirebaseFirestore.getInstance();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        favoritesReference = db.collection("users").document(firebaseUser.getEmail()).collection("favorites");
+        watchlistReference = db.collection("users").document(firebaseUser.getEmail()).collection("watchlist");
+
         numberOfSeasons = (int)movie.get("number_of_seasons");
         seasons = new Integer[numberOfSeasons];
         for (int i = numberOfSeasons; i >=1; i--){
@@ -103,8 +119,8 @@ public class DetailedActivity extends AppCompatActivity {
         //Постер
         Picasso.with(this)
                 .load((String)movie.get("poster_path"))
-                .placeholder(R.drawable.ic_launcher_background)
-                .error(R.mipmap.ic_launcher)
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.placeholder)
                 .into(moviePosterImageView);
 
         //Выбор сезона
@@ -124,30 +140,11 @@ public class DetailedActivity extends AppCompatActivity {
         });
 
 
-        //Кнопка добавления в избранные
-        addToFavoritesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                db.collection("users").document(firebaseUser.getEmail()).collection("favorites").document((String)movie.get("name")).set(movie)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(DetailedActivity.this, "Added to favorites", Toast.LENGTH_SHORT).show();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(DetailedActivity.this, "Task failed", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        });
-
         //Кнопка добавления в вотчлист
         addToWatchlistButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                db.collection("users").document(firebaseUser.getEmail()).collection("watchlist").document((String)movie.get("name")).set(movie)
+                watchlistReference.document((String)movie.get("name")).set(movie)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -162,7 +159,7 @@ public class DetailedActivity extends AppCompatActivity {
             }
         });
 
-        //Выпадающая информация про сериал с анимацией
+        //Выпадающая информация про эпизоды с анимацией
         showSeasonInfoTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -196,8 +193,40 @@ public class DetailedActivity extends AppCompatActivity {
             }
         });
 
+
         setMenuListeners();
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        //Кнопка добавления/удаления сериала из избранных
+        favoritesReference.document(String.valueOf(id)).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (documentSnapshot.exists()){
+                    addToFavoritesButton.setText("Remove from favorites");
+                    addToFavoritesButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            favoritesReference.document(String.valueOf(id)).delete();
+                        }
+                    });
+                }else{
+                    addToFavoritesButton.setText("Add to favorites");
+                    addToFavoritesButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            favoritesReference.document(String.valueOf(id)).set(movie);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+
 
     private void loadEpisodes(){
         episodes = JSONHelper.getTVEpisodes(id, (Integer) chooseSeasonNumberSpinner.getSelectedItem());
@@ -224,6 +253,15 @@ public class DetailedActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(DetailedActivity.this, FavoritesActivity.class);
                 drawerLayout.closeDrawer(GravityCompat.START);
+                startActivity(intent);
+            }
+        });
+
+        mainPageMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                Intent intent = new Intent(DetailedActivity.this, MainActivity.class);
                 startActivity(intent);
             }
         });
