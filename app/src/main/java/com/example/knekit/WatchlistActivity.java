@@ -12,25 +12,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
-public class FavoritesActivity extends AppCompatActivity {
+public class WatchlistActivity extends AppCompatActivity {
     private ArrayList<Map<String, Object>> movieList;
     private Button logOutButton;
     private Button favoritesMenuButton;
@@ -40,24 +34,24 @@ public class FavoritesActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private FirebaseUser firebaseUser;
     private FirebaseFirestore db;
-    private CollectionReference favoritesReference;
+    private CollectionReference watchlistReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_favorites);
+        setContentView(R.layout.activity_watchlist);
 
         movieList = new ArrayList<>();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         db = FirebaseFirestore.getInstance();
-        favoritesReference = db.collection("users").document(firebaseUser.getEmail()).collection("favorites");
+        watchlistReference = db.collection("users").document(firebaseUser.getEmail()).collection("watchlist");
 
         //Выпадающее меню
         drawerLayout = findViewById(R.id.drawer_layout);
         drawerLayout.setScrimColor(getResources().getColor(R.color.transparent)); //Цвет затемнения фона
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Favorites");
+        getSupportActionBar().setTitle("Watchlist");
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
@@ -76,53 +70,32 @@ public class FavoritesActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadFavoritesFromFirestore();
+        loadWatchlistFromFirestore();
     }
 
-    /*@Override
-    protected void onStart() {
-        super.onStart();
-        favoritesReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                if(e != null){
-                    Toast.makeText(FavoritesActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
-                }
+    private void setRecyclerView(){
+        WatchlistAdapter adapter = new WatchlistAdapter(this, movieList);
+        recyclerView.setAdapter(adapter);
 
+        adapter.setOnItemClickListener(new WatchlistAdapter.OnItemClickListener(){
+            @Override
+            public void onItemClick(int position) {
+                Intent intent = new Intent(WatchlistActivity.this, DetailedActivity.class);
+                intent.putExtra("id", ((Long) movieList.get(position).get("id")).intValue());
+                startActivity(intent);
             }
         });
-    }*/
+    }
 
-    private void loadFavoritesFromFirestore(){
+    private void loadWatchlistFromFirestore(){
         movieList.clear();
-        favoritesReference.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        watchlistReference.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
                     movieList.add(documentSnapshot.getData());
                 }
                 setRecyclerView();
-            }
-        });
-    }
-
-    private void setRecyclerView(){
-        MoviesAdapter adapter = new MoviesAdapter(FavoritesActivity.this, movieList);
-        recyclerView.setAdapter(adapter);
-
-        adapter.setOnItemClickListener(new MoviesAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(int position) {
-                Intent intent = new Intent(FavoritesActivity.this, DetailedActivity.class);
-                intent.putExtra("id", ((Long) movieList.get(position).get("id")).intValue());
-                startActivity(intent);
-            }
-        });
-
-        adapter.setOnBottomReachedListener(new MoviesAdapter.OnBottomReachedListener() {
-            @Override
-            public void onBottomReached(int position) {
-
             }
         });
     }
@@ -134,7 +107,7 @@ public class FavoritesActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 FirebaseAuth.getInstance().signOut();
-                Intent intent = new Intent(FavoritesActivity.this, AuthActivity.class);
+                Intent intent = new Intent(WatchlistActivity.this, AuthActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
             }
@@ -144,6 +117,8 @@ public class FavoritesActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 drawerLayout.closeDrawer(GravityCompat.START);
+                Intent intent = new Intent(WatchlistActivity.this, FavoritesActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -151,7 +126,7 @@ public class FavoritesActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 drawerLayout.closeDrawer(GravityCompat.START);
-                Intent intent = new Intent(FavoritesActivity.this, MainActivity.class);
+                Intent intent = new Intent(WatchlistActivity.this, MainActivity.class);
                 startActivity(intent);
             }
         });
@@ -160,8 +135,6 @@ public class FavoritesActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 drawerLayout.closeDrawer(GravityCompat.START);
-                Intent intent = new Intent(FavoritesActivity.this, WatchlistActivity.class);
-                startActivity(intent);
             }
         });
     }

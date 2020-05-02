@@ -124,6 +124,18 @@ public class JSONHelper {
         return tvShows;
     }
 
+    public static int getEpisodeCount(int id, int seasonNumber){
+        int episodeCount=1;
+        try {
+            JSONObject jsonObject = new JSONObject(getTVSeasonDetails(id, seasonNumber));
+            JSONArray jsonArray = jsonObject.getJSONArray("episodes");
+            episodeCount = jsonArray.length();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return episodeCount;
+    }
+
     private static String getTVSeasonDetails(int id, int seasonNumber){
         String url = String.format("https://api.themoviedb.org/3/tv/%d/season/%d?api_key=45b65d61b990414499da78ba05f16d4e&language=en-US", id, seasonNumber);
 

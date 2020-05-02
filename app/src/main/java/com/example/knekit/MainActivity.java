@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private Spinner filterSpinner;
     private Button favoritesMenuButton;
     private Button mainPageMenuButton;
+    private Button watchlistMenuButton;
     private ArrayAdapter<String> spinnerAdapter;
     private String option;
     private int page;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         firebaseAuth = FirebaseAuth.getInstance();
 
+        watchlistMenuButton = findViewById(R.id.menu_button_watchlist);
         mainPageMenuButton = findViewById(R.id.menu_button_main);
         favoritesMenuButton = findViewById(R.id.menu_button_favorites);
         filterSpinner = findViewById(R.id.spinner_main_filter);
@@ -127,6 +129,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 drawerLayout.closeDrawer(GravityCompat.START);
+            }
+        });
+
+        watchlistMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                Intent intent = new Intent(MainActivity.this, WatchlistActivity.class);
+                startActivity(intent);
             }
         });
     }

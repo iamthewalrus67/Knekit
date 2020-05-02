@@ -15,9 +15,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,8 +55,11 @@ public class DetailedActivity extends AppCompatActivity {
     private Button addToFavoritesButton;
     private Button addToWatchlistButton;
     private TextView showSeasonInfoTextView;
+    private TextView showDescriptionTextView;
     private Spinner chooseSeasonNumberSpinner;
     private LinearLayout seasonInfoLinearLayout;
+    private LinearLayout descriptionLinearLayout;
+    private LinearLayout progressLinearLayout;
     private FirebaseUser firebaseUser;
     private FirebaseFirestore db;
     private CollectionReference favoritesReference;
@@ -64,11 +69,18 @@ public class DetailedActivity extends AppCompatActivity {
     private ArrayList<Map<String, Object>> episodes;
     private int id;
     private int numberOfSeasons;
+    private int episodeCount=6;
     private Integer[] seasons;
     private DrawerLayout drawerLayout;
     private Button logOutButton;
     private Button favoritesMenuButton;
     private Button mainPageMenuButton;
+    private Button watchlistMenuButton;
+    private SeekBar episodesSeekBar;
+    private Button saveProgressButton;
+    private EditText numberOfEpisodesWatchedEditText;
+    private Spinner chooseSeasonProgressSpinner;
+    private int progressSelectedSeason;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,9 +96,15 @@ public class DetailedActivity extends AppCompatActivity {
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
+        progressLinearLayout = findViewById(R.id.linear_layout_progress);
+        chooseSeasonProgressSpinner = findViewById(R.id.spinner_progress_choose_season);
+        episodesSeekBar = findViewById(R.id.seek_bar_episodes);
+        saveProgressButton = findViewById(R.id.button_save_watch_progress);
+        numberOfEpisodesWatchedEditText = findViewById(R.id.edit_text_number_of_watched_episodes);
         logOutButton = findViewById(R.id.button_log_out);
         favoritesMenuButton = findViewById(R.id.menu_button_favorites);
         mainPageMenuButton = findViewById(R.id.menu_button_main);
+        watchlistMenuButton = findViewById(R.id.menu_button_watchlist);
         episodesListView = findViewById(R.id.list_view_episodes);
         moviePosterImageView = findViewById(R.id.img_detail_movie_poster);
         movieTitleTextView = findViewById(R.id.tv_detail_movie_title);
@@ -96,7 +114,9 @@ public class DetailedActivity extends AppCompatActivity {
         addToWatchlistButton = findViewById(R.id.button_add_to_watchlist);
         chooseSeasonNumberSpinner = findViewById(R.id.spinner_choose_season);
         seasonInfoLinearLayout = findViewById(R.id.linear_layout_season_info);
+        descriptionLinearLayout = findViewById(R.id.linear_layout_description);
         showSeasonInfoTextView = findViewById(R.id.button_show_season_info);
+        showDescriptionTextView = findViewById(R.id.button_show_description);
         id = getIntent().getIntExtra("id", 1);
         movie = JSONHelper.getTVShowWithId(id);
         db = FirebaseFirestore.getInstance();
@@ -124,7 +144,7 @@ public class DetailedActivity extends AppCompatActivity {
                 .into(moviePosterImageView);
 
         //Выбор сезона
-        seasonSpinnerAdapter = new ArrayAdapter<Integer>(this, R.layout.spinner_item_seasons, seasons);
+        seasonSpinnerAdapter = new ArrayAdapter<>(this, R.layout.spinner_item_seasons, seasons);
         seasonSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
         chooseSeasonNumberSpinner.setAdapter(seasonSpinnerAdapter);
         chooseSeasonNumberSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -136,26 +156,6 @@ public class DetailedActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
-            }
-        });
-
-
-        //Кнопка добавления в вотчлист
-        addToWatchlistButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                watchlistReference.document((String)movie.get("name")).set(movie)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(DetailedActivity.this, "Added to watchlist", Toast.LENGTH_SHORT).show();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(DetailedActivity.this, "Task failed", Toast.LENGTH_SHORT).show();
-                    }
-                });
             }
         });
 
@@ -193,6 +193,74 @@ public class DetailedActivity extends AppCompatActivity {
             }
         });
 
+        //Описание сериала
+        showDescriptionTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (descriptionLinearLayout.getVisibility()==View.VISIBLE) {
+                    showDescriptionTextView.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_drop_up_24dp, 0);
+                    descriptionLinearLayout.animate()
+                            .translationY(seasonInfoLinearLayout.getHeight())
+                            .alpha(0.0f)
+                            .setDuration(300)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    super.onAnimationEnd(animation);
+                                    descriptionLinearLayout.setVisibility(View.GONE);
+                                }
+                            });
+                }else{
+                    showDescriptionTextView.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_drop_down_24dp, 0);
+                    descriptionLinearLayout.animate()
+                            .translationY(0)
+                            .alpha(1.0f)
+                            .setDuration(300)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationStart(Animator animation) {
+                                    super.onAnimationStart(animation);
+                                    descriptionLinearLayout.setVisibility(View.VISIBLE);
+                                }
+                            });
+                }
+            }
+        });
+
+        //Прогресс
+        ArrayAdapter<Integer> seasonProgressSpinnerAdapter = new ArrayAdapter<>(this, R.layout.spinner_item_seasons, seasons);
+        seasonProgressSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
+        chooseSeasonProgressSpinner.setAdapter(seasonProgressSpinnerAdapter);
+        chooseSeasonProgressSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                progressSelectedSeason = (int) chooseSeasonProgressSpinner.getSelectedItem();
+                loadEpisodeCount(progressSelectedSeason);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        episodesSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                numberOfEpisodesWatchedEditText.setText(Integer.toString(episodeCount*progress/100));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
 
         setMenuListeners();
     }
@@ -224,6 +292,51 @@ public class DetailedActivity extends AppCompatActivity {
                 }
             }
         });
+
+        //Кнопка добавления/удаления сериала из вотчлиста
+        watchlistReference.document(String.valueOf(id)).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (documentSnapshot.exists()){
+                    progressLinearLayout.setVisibility(View.VISIBLE);
+                    Map<String, Object> data = documentSnapshot.getData();
+                    Long currentSeason = (Long) data.get("current_season");
+                    Long numberOfEpisodesWatched = (Long) data.get("number_of_episodes_watched");
+                    Long numberOfEpisodes = (Long) data.get("number_of_episodes");
+                    chooseSeasonProgressSpinner.setSelection(seasons.length-currentSeason.intValue());
+                    episodesSeekBar.setProgress((int) (numberOfEpisodesWatched.floatValue()/numberOfEpisodes*100));
+                    numberOfEpisodesWatchedEditText.setText(numberOfEpisodesWatched.toString());
+                    addToWatchlistButton.setText("Remove from watchlist");
+                    addToWatchlistButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            watchlistReference.document(String.valueOf(id)).delete();
+                        }
+                    });
+
+                    saveProgressButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            watchlistReference.document(String.valueOf(id)).update("current_season", chooseSeasonProgressSpinner.getSelectedItem());
+                            watchlistReference.document(String.valueOf(id)).update("number_of_episodes", episodeCount);
+                            watchlistReference.document(String.valueOf(id)).update("number_of_episodes_watched", Integer.valueOf(numberOfEpisodesWatchedEditText.getText().toString().trim()));
+                        }
+                    });
+                }else{
+                    progressLinearLayout.setVisibility(View.GONE);
+                    addToWatchlistButton.setText("Add to watchlist");
+                    addToWatchlistButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            movie.put("number_of_episodes_watched", 0);
+                            movie.put("number_of_episodes", JSONHelper.getEpisodeCount(id, 1));
+                            movie.put("current_season", 1);
+                            watchlistReference.document(String.valueOf(id)).set(movie);
+                        }
+                    });
+                }
+            }
+        });
     }
 
 
@@ -232,7 +345,10 @@ public class DetailedActivity extends AppCompatActivity {
         episodes = JSONHelper.getTVEpisodes(id, (Integer) chooseSeasonNumberSpinner.getSelectedItem());
         episodesListViewAdapter = new EpisodesListAdapter(this, R.layout.episode_list_item, episodes);
         episodesListView.setAdapter(episodesListViewAdapter);
+    }
 
+    private void loadEpisodeCount(int seasonNumber){
+        episodeCount = JSONHelper.getEpisodeCount(id, seasonNumber);
     }
 
     //Слушатели кнопок выпадающего меню
@@ -262,6 +378,15 @@ public class DetailedActivity extends AppCompatActivity {
             public void onClick(View v) {
                 drawerLayout.closeDrawer(GravityCompat.START);
                 Intent intent = new Intent(DetailedActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        watchlistMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                Intent intent = new Intent(DetailedActivity.this, WatchlistActivity.class);
                 startActivity(intent);
             }
         });

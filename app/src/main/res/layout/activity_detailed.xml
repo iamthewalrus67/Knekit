@@ -56,12 +56,60 @@
                         android:textColor="@color/white"/>
                 </LinearLayout>
             </LinearLayout>
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="20dp"
                 android:padding="20dp"
-                android:textColor="@color/white"
-                android:id="@+id/tv_detail_movie_description"/>
+                android:id="@+id/linear_layout_progress"
+                android:visibility="gone"
+                android:background="@drawable/info_block"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:background="@android:color/transparent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="15dp"
+                        android:background="@android:color/transparent"
+                        android:textColor="@color/white"
+                        android:text="Currently watching season: "/>
+                    <Spinner
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                        android:dropDownWidth="100dp"
+                        android:id="@+id/spinner_progress_choose_season"
+                        android:popupElevation="0dp"/>
+                </LinearLayout>
+                <SeekBar
+                    android:layout_marginVertical="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:progressDrawable="@drawable/progress_seek_bar"
+                    android:id="@+id/seek_bar_episodes"/>
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/white"
+                    android:layout_gravity="center"
+                    android:inputType="number"
+                    android:id="@+id/edit_text_number_of_watched_episodes"
+                    android:layout_height="wrap_content"/>
+                <Button
+                    android:layout_marginTop="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:background="@drawable/button_ripple"
+                    android:id="@+id/button_save_watch_progress"
+                    android:text="Save progress"
+                    android:layout_gravity="center"
+                    android:textColor="@color/white"/>
+            </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -87,6 +135,46 @@
                     android:text="Add to watchlist"/>
             </LinearLayout>
             <LinearLayout
+                android:layout_marginTop="20dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/info_block"
+                android:orientation="vertical"
+                android:id="@+id/description_block">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center_vertical"
+                    android:id="@+id/button_show_description"
+                    android:background="@android:color/transparent"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:textStyle="bold"
+                    android:textSize="16dp"
+                    android:drawableRight="@drawable/ic_arrow_drop_up_24dp"
+                    android:textColor="@color/white"
+                    android:text="DESCRIPTION"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/linear_layout_description"
+                    android:visibility="gone"
+                    android:background="@android:color/transparent"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="20dp"
+                        android:paddingBottom="20dp"
+                        android:background="@android:color/transparent"
+                        android:textColor="@color/white"
+                        android:id="@+id/tv_detail_movie_description"/>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/info_block"
@@ -104,13 +192,14 @@
                     android:layout_marginBottom="20dp"
                     android:textStyle="bold"
                     android:textSize="16dp"
-                    android:drawableRight="@drawable/ic_arrow_drop_down_24dp"
+                    android:drawableRight="@drawable/ic_arrow_drop_up_24dp"
                     android:textColor="@color/white"
                     android:text="SEASON INFO"/>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/linear_layout_season_info"
+                    android:visibility="gone"
                     android:padding="20dp"
                     android:background="@android:color/transparent"
                     android:orientation="vertical">
@@ -173,6 +262,16 @@
                 android:theme="@style/AppTheme.NavigationBar"
                 android:id="@+id/menu_button_favorites"
                 android:text="Favorites"
+                android:gravity="center_vertical"
+                android:textAllCaps="false"/>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/menu_button_ripple"
+                android:padding="20dp"
+                android:theme="@style/AppTheme.NavigationBar"
+                android:id="@+id/menu_button_watchlist"
+                android:text="Watchlist"
                 android:gravity="center_vertical"
                 android:textAllCaps="false"/>
         </LinearLayout>
