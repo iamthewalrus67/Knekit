@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,10 +21,14 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     private Context mContext;
     private OnBottomReachedListener onBottomReachedListener;
     private OnItemClickListener onItemClickListener;
+    private int orientation;
+    public final static int VERTICAL = 0;
+    public final static int HORIZONTAL = 1;
 
-    public MoviesAdapter(Context context, ArrayList<Map<String, Object>> movieList){
+    public MoviesAdapter(Context context, ArrayList<Map<String, Object>> movieList, int orientation){
         mMovieList = movieList;
         mContext = context;
+        this.orientation = orientation;
     }
 
     public void setOnBottomReachedListener(OnBottomReachedListener onBottomReachedListener) {
@@ -45,8 +50,18 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     @NonNull
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.movie_list_item, parent, false);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.movie_list_item, parent, false);;
         MovieViewHolder viewHolder = new MovieViewHolder(view);
+        switch (orientation){
+            case HORIZONTAL:
+                view = LayoutInflater.from(mContext).inflate(R.layout.movie_item_horizontal, parent, false);
+                viewHolder = new MovieViewHolder(view);
+                return viewHolder;
+            case VERTICAL:
+                view = LayoutInflater.from(mContext).inflate(R.layout.movie_list_item, parent, false);
+                viewHolder = new MovieViewHolder(view);
+                return viewHolder;
+        }
 
         return viewHolder;
     }
@@ -61,6 +76,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
         String title = (String) currentItem.get("name");
         String imageUrl = (String) currentItem.get("poster_path");
+
 
         holder.movieTitleTexView.setText(title);
         Picasso.with(mContext)

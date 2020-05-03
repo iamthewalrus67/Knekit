@@ -114,22 +114,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:orientation="horizontal">
+                android:orientation="vertical">
                 <Button
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/button_ripple"
                     android:textColor="@color/white"
-                    android:layout_margin="10dp"
+                    android:layout_marginVertical="10dp"
+                    android:layout_marginHorizontal="20dp"
                     android:padding="10dp"
                     android:id="@+id/button_add_to_favorites"
                     android:text="Add to favorites"/>
                 <Button
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/button_ripple"
                     android:textColor="@color/white"
-                    android:layout_margin="10dp"
+                    android:layout_marginVertical="10dp"
+                    android:layout_marginHorizontal="20dp"
                     android:padding="10dp"
                     android:id="@+id/button_add_to_watchlist"
                     android:text="Add to watchlist"/>
@@ -230,6 +232,17 @@
                         android:nestedScrollingEnabled="true"/>
                 </LinearLayout>
             </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:layout_margin="20dp"
+                android:text="You may also like:"
+                android:textColor="@color/white"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/rv_recommended_list"/>
         </LinearLayout>
     </ScrollView>
     </LinearLayout>

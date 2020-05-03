@@ -107,7 +107,7 @@ public class FavoritesActivity extends AppCompatActivity {
     }
 
     private void setRecyclerView(){
-        MoviesAdapter adapter = new MoviesAdapter(FavoritesActivity.this, movieList);
+        MoviesAdapter adapter = new MoviesAdapter(FavoritesActivity.this, movieList, MoviesAdapter.VERTICAL);
         recyclerView.setAdapter(adapter);
 
         adapter.setOnItemClickListener(new MoviesAdapter.OnItemClickListener() {

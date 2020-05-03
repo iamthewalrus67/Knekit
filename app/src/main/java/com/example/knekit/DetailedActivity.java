@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -80,7 +82,10 @@ public class DetailedActivity extends AppCompatActivity {
     private Button saveProgressButton;
     private EditText numberOfEpisodesWatchedEditText;
     private Spinner chooseSeasonProgressSpinner;
+    private RecyclerView recommendedRecyclerView;
+    private ArrayList<Map<String, Object>> recommendedMovieList;
     private int progressSelectedSeason;
+    private int page;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +101,7 @@ public class DetailedActivity extends AppCompatActivity {
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
+        recommendedRecyclerView = findViewById(R.id.rv_recommended_list);
         progressLinearLayout = findViewById(R.id.linear_layout_progress);
         chooseSeasonProgressSpinner = findViewById(R.id.spinner_progress_choose_season);
         episodesSeekBar = findViewById(R.id.seek_bar_episodes);
@@ -118,6 +124,7 @@ public class DetailedActivity extends AppCompatActivity {
         showSeasonInfoTextView = findViewById(R.id.button_show_season_info);
         showDescriptionTextView = findViewById(R.id.button_show_description);
         id = getIntent().getIntExtra("id", 1);
+        page = 1;
         movie = JSONHelper.getTVShowWithId(id);
         db = FirebaseFirestore.getInstance();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -260,6 +267,29 @@ public class DetailedActivity extends AppCompatActivity {
 
             }
         });
+
+        //Рекомендации
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false);
+        recommendedRecyclerView.setLayoutManager(linearLayoutManager);
+        recommendedMovieList = JSONHelper.getRecommendedTVShows(id, page);
+        MoviesAdapter adapter = new MoviesAdapter(this, recommendedMovieList, MoviesAdapter.HORIZONTAL);
+        recommendedRecyclerView.setAdapter(adapter);
+        adapter.setOnBottomReachedListener(new MoviesAdapter.OnBottomReachedListener() {
+            @Override
+            public void onBottomReached(int position) {
+                recommendedMovieList.addAll(JSONHelper.getRecommendedTVShows(id, ++page));
+            }
+        });
+
+        adapter.setOnItemClickListener(new MoviesAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                Intent intent = new Intent(DetailedActivity.this, DetailedActivity.class);
+                intent.putExtra("id", (Integer) recommendedMovieList.get(position).get("id"));
+                startActivity(intent);
+            }
+        });
+
 
 
         setMenuListeners();

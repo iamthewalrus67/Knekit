@@ -19,7 +19,13 @@ import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.Spinner;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -30,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private MoviesAdapter movieAdapter;
     private ArrayList<Map<String, Object>> movieList;
     private ArrayList<Map<String, Object>> searchResults;
+    private ArrayList<Map<String, Object>> watchlistMovieList;
     private FirebaseAuth firebaseAuth;
     private Button logOutButton;
     private Spinner filterSpinner;
@@ -144,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadTVShows(){
         movieList = JSONHelper.getTVShows(page, option);
-        movieAdapter = new MoviesAdapter(MainActivity.this, movieList);
+        movieAdapter = new MoviesAdapter(MainActivity.this, movieList, MoviesAdapter.VERTICAL);
         recyclerView.setAdapter(movieAdapter);
 
         movieAdapter.setOnBottomReachedListener(new MoviesAdapter.OnBottomReachedListener() {
@@ -166,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadTVShowsWithSearch(final String query){
         searchResults = JSONHelper.getTVShowsBySearch(query, searchPage);
-        MoviesAdapter searchAdapter = new MoviesAdapter(MainActivity.this, searchResults);
+        MoviesAdapter searchAdapter = new MoviesAdapter(MainActivity.this, searchResults, MoviesAdapter.VERTICAL);
         recyclerView.setAdapter(searchAdapter);
 
         searchAdapter.setOnBottomReachedListener(new MoviesAdapter.OnBottomReachedListener() {

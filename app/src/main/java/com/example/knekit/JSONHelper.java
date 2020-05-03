@@ -124,6 +124,27 @@ public class JSONHelper {
         return tvShows;
     }
 
+    public static ArrayList<Map<String, Object>> getRecommendedTVShows(int id, int page){
+        String url = String.format("https://api.themoviedb.org/3/tv/%d/recommendations?api_key=45b65d61b990414499da78ba05f16d4e&language=en-US&page=%d", id, page);
+        ArrayList<Map<String, Object>> tvShows = new ArrayList<>();
+        try {
+            JSONObject jsonObject = new JSONObject(getJSON(url));
+            JSONArray jsonArray = jsonObject.getJSONArray("results");
+            for(int i=0; i<jsonArray.length(); i++){
+                Map<String, Object> tvShow = new HashMap<>();
+                JSONObject tvShowJSONObject = jsonArray.getJSONObject(i);
+                tvShow.put(NAME, "0");
+                tvShow.put(POSTER_PATH, BASE_IMG_URL+POSTER_WIDTH_500+tvShowJSONObject.getString(POSTER_PATH));
+                tvShow.put("id", tvShowJSONObject.getInt("id"));
+                tvShows.add(tvShow);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return tvShows;
+    }
+
     public static int getEpisodeCount(int id, int seasonNumber){
         int episodeCount=1;
         try {
