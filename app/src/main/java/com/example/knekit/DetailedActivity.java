@@ -1,6 +1,5 @@
 package com.example.knekit;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -17,19 +16,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -37,12 +30,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -80,7 +71,7 @@ public class DetailedActivity extends AppCompatActivity {
     private Button watchlistMenuButton;
     private SeekBar episodesSeekBar;
     private Button saveProgressButton;
-    private EditText numberOfEpisodesWatchedEditText;
+    private TextView numberOfEpisodesWatchedTextView;
     private Spinner chooseSeasonProgressSpinner;
     private RecyclerView recommendedRecyclerView;
     private ArrayList<Map<String, Object>> recommendedMovieList;
@@ -106,7 +97,7 @@ public class DetailedActivity extends AppCompatActivity {
         chooseSeasonProgressSpinner = findViewById(R.id.spinner_progress_choose_season);
         episodesSeekBar = findViewById(R.id.seek_bar_episodes);
         saveProgressButton = findViewById(R.id.button_save_watch_progress);
-        numberOfEpisodesWatchedEditText = findViewById(R.id.edit_text_number_of_watched_episodes);
+        numberOfEpisodesWatchedTextView = findViewById(R.id.tv_number_of_watched_episodes);
         logOutButton = findViewById(R.id.button_log_out);
         favoritesMenuButton = findViewById(R.id.menu_button_favorites);
         mainPageMenuButton = findViewById(R.id.menu_button_main);
@@ -254,7 +245,7 @@ public class DetailedActivity extends AppCompatActivity {
         episodesSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                numberOfEpisodesWatchedEditText.setText(Integer.toString(episodeCount*progress/100));
+                numberOfEpisodesWatchedTextView.setText(Integer.toString(episodeCount*progress/100));
             }
 
             @Override
@@ -300,70 +291,74 @@ public class DetailedActivity extends AppCompatActivity {
         super.onStart();
 
         //Кнопка добавления/удаления сериала из избранных
-        favoritesReference.document(String.valueOf(id)).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        favoritesReference.document(String.valueOf(id)).addSnapshotListener(DetailedActivity.this, new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if (documentSnapshot.exists()){
-                    addToFavoritesButton.setText("Remove from favorites");
-                    addToFavoritesButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            favoritesReference.document(String.valueOf(id)).delete();
-                        }
-                    });
-                }else{
-                    addToFavoritesButton.setText("Add to favorites");
-                    addToFavoritesButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            favoritesReference.document(String.valueOf(id)).set(movie);
-                        }
-                    });
+                if (documentSnapshot != null) {
+                    if (documentSnapshot.exists()) {
+                        addToFavoritesButton.setText("Remove from favorites");
+                        addToFavoritesButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                favoritesReference.document(String.valueOf(id)).delete();
+                            }
+                        });
+                    } else {
+                        addToFavoritesButton.setText("Add to favorites");
+                        addToFavoritesButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                favoritesReference.document(String.valueOf(id)).set(movie);
+                            }
+                        });
+                    }
                 }
             }
         });
 
         //Кнопка добавления/удаления сериала из вотчлиста
-        watchlistReference.document(String.valueOf(id)).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        watchlistReference.document(String.valueOf(id)).addSnapshotListener(DetailedActivity.this, new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if (documentSnapshot.exists()){
-                    progressLinearLayout.setVisibility(View.VISIBLE);
-                    Map<String, Object> data = documentSnapshot.getData();
-                    Long currentSeason = (Long) data.get("current_season");
-                    Long numberOfEpisodesWatched = (Long) data.get("number_of_episodes_watched");
-                    Long numberOfEpisodes = (Long) data.get("number_of_episodes");
-                    chooseSeasonProgressSpinner.setSelection(seasons.length-currentSeason.intValue());
-                    episodesSeekBar.setProgress((int) (numberOfEpisodesWatched.floatValue()/numberOfEpisodes*100));
-                    numberOfEpisodesWatchedEditText.setText(numberOfEpisodesWatched.toString());
-                    addToWatchlistButton.setText("Remove from watchlist");
-                    addToWatchlistButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            watchlistReference.document(String.valueOf(id)).delete();
-                        }
-                    });
+                if (documentSnapshot != null) {
+                    if (documentSnapshot.exists()) {
+                        progressLinearLayout.setVisibility(View.VISIBLE);
+                        Map<String, Object> data = documentSnapshot.getData();
+                        Long currentSeason = (Long) data.get("current_season");
+                        Long numberOfEpisodesWatched = (Long) data.get("number_of_episodes_watched");
+                        Long numberOfEpisodes = (Long) data.get("number_of_episodes");
+                        chooseSeasonProgressSpinner.setSelection(seasons.length - currentSeason.intValue());
+                        episodesSeekBar.setProgress((int) (numberOfEpisodesWatched.floatValue() / numberOfEpisodes * 100));
+                        numberOfEpisodesWatchedTextView.setText(numberOfEpisodesWatched.toString());
+                        addToWatchlistButton.setText("Remove from watchlist");
+                        addToWatchlistButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                watchlistReference.document(String.valueOf(id)).delete();
+                            }
+                        });
 
-                    saveProgressButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            watchlistReference.document(String.valueOf(id)).update("current_season", chooseSeasonProgressSpinner.getSelectedItem());
-                            watchlistReference.document(String.valueOf(id)).update("number_of_episodes", episodeCount);
-                            watchlistReference.document(String.valueOf(id)).update("number_of_episodes_watched", Integer.valueOf(numberOfEpisodesWatchedEditText.getText().toString().trim()));
-                        }
-                    });
-                }else{
-                    progressLinearLayout.setVisibility(View.GONE);
-                    addToWatchlistButton.setText("Add to watchlist");
-                    addToWatchlistButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            movie.put("number_of_episodes_watched", 0);
-                            movie.put("number_of_episodes", JSONHelper.getEpisodeCount(id, 1));
-                            movie.put("current_season", 1);
-                            watchlistReference.document(String.valueOf(id)).set(movie);
-                        }
-                    });
+                        saveProgressButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                watchlistReference.document(String.valueOf(id)).update("current_season", chooseSeasonProgressSpinner.getSelectedItem());
+                                watchlistReference.document(String.valueOf(id)).update("number_of_episodes", episodeCount);
+                                watchlistReference.document(String.valueOf(id)).update("number_of_episodes_watched", Integer.valueOf(numberOfEpisodesWatchedTextView.getText().toString().trim()));
+                            }
+                        });
+                    } else {
+                        progressLinearLayout.setVisibility(View.GONE);
+                        addToWatchlistButton.setText("Add to watchlist");
+                        addToWatchlistButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                movie.put("number_of_episodes_watched", 0);
+                                movie.put("number_of_episodes", JSONHelper.getEpisodeCount(id, 1));
+                                movie.put("current_season", 1);
+                                watchlistReference.document(String.valueOf(id)).set(movie);
+                            }
+                        });
+                    }
                 }
             }
         });

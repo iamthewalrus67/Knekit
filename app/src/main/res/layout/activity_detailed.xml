@@ -91,13 +91,14 @@
                     android:layout_height="wrap_content"
                     android:progressDrawable="@drawable/progress_seek_bar"
                     android:id="@+id/seek_bar_episodes"/>
-                <EditText
+                <TextView
                     android:layout_width="wrap_content"
                     android:text="0"
+                    android:textSize="20dp"
+                    android:background="@android:color/transparent"
                     android:textColor="@color/white"
                     android:layout_gravity="center"
-                    android:inputType="number"
-                    android:id="@+id/edit_text_number_of_watched_episodes"
+                    android:id="@+id/tv_number_of_watched_episodes"
                     android:layout_height="wrap_content"/>
                 <Button
                     android:layout_marginTop="10dp"

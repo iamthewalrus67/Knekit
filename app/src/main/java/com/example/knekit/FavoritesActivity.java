@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -38,6 +40,7 @@ public class FavoritesActivity extends AppCompatActivity {
     private Button watchlistMenuButton;
     private DrawerLayout drawerLayout;
     private RecyclerView recyclerView;
+    private LinearLayout noDataLinearLayout;
     private FirebaseUser firebaseUser;
     private FirebaseFirestore db;
     private CollectionReference favoritesReference;
@@ -47,6 +50,7 @@ public class FavoritesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorites);
 
+        noDataLinearLayout = findViewById(R.id.linear_layout_no_data);
         movieList = new ArrayList<>();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         db = FirebaseFirestore.getInstance();
@@ -100,6 +104,9 @@ public class FavoritesActivity extends AppCompatActivity {
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
                     movieList.add(documentSnapshot.getData());
+                }
+                if (movieList.isEmpty()){
+                    noDataLinearLayout.setVisibility(View.VISIBLE);
                 }
                 setRecyclerView();
             }
