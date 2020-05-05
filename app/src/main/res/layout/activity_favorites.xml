@@ -90,7 +90,7 @@
                 android:id="@+id/menu_button_watchlist"
                 android:text=" Watchlist"
                 android:textSize="17dp"
-                android:drawableLeft="@drawable/ic_favorite_24dp"
+                android:drawableLeft="@drawable/ic_watchlist_24dp"
                 android:gravity="center_vertical"
                 android:textAllCaps="false"/>
         </LinearLayout>

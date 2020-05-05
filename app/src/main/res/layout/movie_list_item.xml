@@ -16,15 +16,15 @@
         android:background="@android:color/transparent">
         <ImageView
             android:id="@+id/img_movie_image"
-            android:scaleType="fitXY"
+            android:scaleType="fitStart"
             android:layout_width="0dp"
-            android:layout_weight=".50"
-            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
             android:background="@drawable/placeholder"
             />
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_weight=".50"
+            android:layout_weight="1"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:background="@android:color/transparent"
