@@ -34,7 +34,7 @@
                 <ImageView
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"
+                    android:layout_height="250dp"
                     android:scaleType="fitStart"
                     android:src="@drawable/ic_launcher_background"
                     android:id="@+id/img_detail_movie_poster"/>
