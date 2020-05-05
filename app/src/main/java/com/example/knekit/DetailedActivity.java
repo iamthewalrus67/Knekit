@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -45,6 +46,7 @@ public class DetailedActivity extends AppCompatActivity {
     private TextView movieTitleTextView;
     private TextView movieDescriptionTextView;
     private TextView numberOfSeasonsTextView;
+    private TextView ratingTextView;
     private Button addToFavoritesButton;
     private Button addToWatchlistButton;
     private TextView showSeasonInfoTextView;
@@ -75,6 +77,7 @@ public class DetailedActivity extends AppCompatActivity {
     private Spinner chooseSeasonProgressSpinner;
     private RecyclerView recommendedRecyclerView;
     private ArrayList<Map<String, Object>> recommendedMovieList;
+    private Double rating;
     private int progressSelectedSeason;
     private int page;
 
@@ -105,6 +108,7 @@ public class DetailedActivity extends AppCompatActivity {
         episodesListView = findViewById(R.id.list_view_episodes);
         moviePosterImageView = findViewById(R.id.img_detail_movie_poster);
         movieTitleTextView = findViewById(R.id.tv_detail_movie_title);
+        ratingTextView = findViewById(R.id.tv_rating);
         movieDescriptionTextView = findViewById(R.id.tv_detail_movie_description);
         numberOfSeasonsTextView = findViewById(R.id.tv_detail_number_of_seasons);
         addToFavoritesButton = findViewById(R.id.button_add_to_favorites);
@@ -117,6 +121,7 @@ public class DetailedActivity extends AppCompatActivity {
         id = getIntent().getIntExtra("id", 1);
         page = 1;
         movie = JSONHelper.getTVShowWithId(id);
+        rating = (Double) movie.get("vote_average");
         db = FirebaseFirestore.getInstance();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         favoritesReference = db.collection("users").document(firebaseUser.getEmail()).collection("favorites");
@@ -128,10 +133,24 @@ public class DetailedActivity extends AppCompatActivity {
             seasons[numberOfSeasons-i]=i;
         }
 
-        movieTitleTextView.setText((String)movie.get("name"));
+        String firstAirDate = (String) movie.get("first_air_date");
+        String lastAirDate = "";
+        if((boolean)movie.get("in_production")==false){
+            lastAirDate = (String) movie.get("last_air_date");
+        }
+        movieTitleTextView.setText(movie.get("name")+"\n("+firstAirDate.substring(0, 4)+"-"+lastAirDate.substring(0, Math.min(lastAirDate.length(), 4))+")");
         movieDescriptionTextView.setText((String)movie.get("overview"));
         if(numberOfSeasons>1){
             numberOfSeasonsTextView.setText(numberOfSeasons+" Seasons");
+        }
+        ratingTextView.setText(rating.toString());
+        if (rating<7){
+            ratingTextView.setTextColor(Color.parseColor("#ffc100"));
+            if (rating<5){
+                ratingTextView.setTextColor(Color.parseColor("#FF00AA"));
+            }
+        }else{
+            ratingTextView.setTextColor(Color.parseColor("#00d644"));
         }
 
         //Постер

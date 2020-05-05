@@ -53,6 +53,7 @@ public class JSONHelper {
                 tvShow.put(POSTER_PATH, BASE_IMG_URL+POSTER_WIDTH_500+tvShowJSONObject.getString(POSTER_PATH));
                 tvShow.put("id", tvShowJSONObject.getInt("id"));
                 tvShow.put("type", TYPE_TV);
+                tvShow.put("vote_average", tvShowJSONObject.getDouble("vote_average"));
                 tvShowList.add(tvShow);
             }
         } catch (JSONException e) {
@@ -70,7 +71,11 @@ public class JSONHelper {
             tvShow.put(POSTER_PATH, BASE_IMG_URL+POSTER_WIDTH_500+jsonObject.getString(POSTER_PATH));
             tvShow.put(NAME, jsonObject.getString(NAME));
             tvShow.put(OVERVIEW, jsonObject.getString(OVERVIEW));
+            tvShow.put("in_production", jsonObject.getBoolean("in_production"));
+            tvShow.put("first_air_date", jsonObject.getString("first_air_date"));
+            tvShow.put("last_air_date", jsonObject.getString("last_air_date"));
             tvShow.put("id", id);
+            tvShow.put("vote_average", jsonObject.getDouble("vote_average"));
             tvShow.put("number_of_seasons", jsonObject.getInt("number_of_seasons"));
 
         } catch (JSONException e) {
@@ -115,6 +120,7 @@ public class JSONHelper {
                 tvShow.put(NAME, tvShowJSONObject.getString(NAME));
                 tvShow.put(POSTER_PATH, BASE_IMG_URL+POSTER_WIDTH_500+tvShowJSONObject.getString(POSTER_PATH));
                 tvShow.put("id", tvShowJSONObject.getInt("id"));
+                tvShow.put("vote_average", tvShowJSONObject.getDouble("vote_average"));
                 tvShows.add(tvShow);
             }
         } catch (JSONException e) {
